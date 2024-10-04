@@ -107,6 +107,7 @@ jobs:
 
       # Создание релиза
       - name: Create Release
+        if: always()
         id: create_release_macos
         uses: actions/create-release@v1
         env:
