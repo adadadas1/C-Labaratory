@@ -46,7 +46,7 @@ jobs:
       - name: Find Generated Package
         run: find . -name "*.deb" -or -name "*.pkg"
 
-      # Создание релиза
+      # Создание релизa
       - name: Create Release
         id: create_release_ubuntu
         uses: actions/create-release@v1
