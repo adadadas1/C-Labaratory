@@ -1,26 +1,47 @@
 name: 'C++ CI'
 
+# Запуск на каждый коммит и pull request
 on:
   push:
     branches:
-      - main
-      - feature/github_actions
+      - '**'
+  pull_request:
+    branches:
+      - '**'
 
 jobs:
-  build:
+  # Задача для сборки на Ubuntu
+  build_ubuntu:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - run: sudo apt-get update && sudo apt-get install libboost-test-dev -y
-      - run: cmake . -DPATCH_VERSION=${{ github.run_number }}
-      - run: cmake --build .
-      - run: cmake --build . --target test
-      - run: cmake --build . --target package
+      
+      # Устанавливаем зависимости для Ubuntu
+      - name: Install Dependencies
+        run: sudo apt-get update && sudo apt-get install libboost-test-dev -y
+
+      # Сборка проекта
+      - name: Build Project
+        run: cmake . -DPATCH_VERSION=${{ github.run_number }}
+
+      # Компиляция проекта
+      - name: Compile
+        run: cmake --build .
+
+      # Запуск тестов
+      - name: Run Tests
+        run: cmake --build . --target test
+
+      # Сборка пакета
+      - name: Package
+        run: cmake --build . --target package
+
+      # Создание релиза
       - name: Create Release
-        id: create_release
+        id: create_release_ubuntu
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,13 +50,66 @@ jobs:
           release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
+
+      # Загрузка артефактов для Ubuntu
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release_ubuntu.outputs.upload_url }}
           asset_path: ./helloworld-0.0.${{ github.run_number }}-Linux.deb
           asset_name: helloworld-0.0.${{ github.run_number }}-Linux.deb
           asset_content_type: application/vnd.debian.binary-package
+
+  # Задача для сборки на macOS
+  build_macos:
+    runs-on: macos-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      
+      # Устанавливаем зависимости для macOS
+      - name: Install Dependencies
+        run: brew install boost
+
+      # Сборка проекта
+      - name: Build Project
+        run: cmake . -DPATCH_VERSION=${{ github.run_number }}
+
+      # Компиляция проекта
+      - name: Compile
+        run: cmake --build .
+
+      # Запуск тестов
+      - name: Run Tests
+        run: cmake --build . --target test
+
+      # Сборка пакета
+      - name: Package
+        run: cmake --build . --target package
+
+      # Создание релиза
+      - name: Create Release
+        id: create_release_macos
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      # Загрузка артефактов для macOS
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release_macos.outputs.upload_url }}
+          asset_path: ./helloworld-0.0.${{ github.run_number }}-macOS.pkg
+          asset_name: helloworld-0.0.${{ github.run_number }}-macOS.pkg
+          asset_content_type: application/octet-stream
