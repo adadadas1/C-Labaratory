@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.10)
-
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
-set(PROJECT_VESRION 0.0.${PATCH_VERSION})
+set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
-project(helloworld VERSION ${PROJECT_VESRION})
+project(helloworld VERSION ${PROJECT_VERSION})
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
@@ -55,16 +53,22 @@ else ()
     )
 endif()
 
-
-
 install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
 
-set(CPACK_GENERATOR DEB)
+# Настройка CPack в зависимости от операционной системы
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(CPACK_GENERATOR "DEB")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your Name")
+    set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${PATCH_VERSION}-Linux")
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    set(CPACK_GENERATOR "productbuild")
+    set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${PATCH_VERSION}-macOS")
+endif()
 
+# Общие настройки CPack
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
@@ -72,26 +76,3 @@ include(CPack)
 enable_testing()
 
 add_test(test_version test_version)
-
-include(CPack)
-
-# Получаем номер сборки из переменной окружения GitHub
-if(DEFINED ENV{GITHUB_RUN_NUMBER})
-    set(PATCH_VERSION $ENV{GITHUB_RUN_NUMBER})
-else()
-    set(PATCH_VERSION 1)  # Если переменная не определена, используем значение по умолчанию
-endif()
-
-if(APPLE)
-    set(CPACK_GENERATOR "productbuild")
-    set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${PATCH_VERSION}-macOS")
-    set(CPACK_PRODUCTBUILD_IDENTITY "Developer ID Installer: Your Name (Your Team ID)")
-elseif(UNIX)
-    set(CPACK_GENERATOR "DEB")
-    set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${PATCH_VERSION}-Linux")
-    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your Name")
-endif()
-
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "${PATCH_VERSION}")
