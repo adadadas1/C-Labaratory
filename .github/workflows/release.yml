@@ -87,6 +87,12 @@ jobs:
       - name: Run Tests
         run: cmake --build . --target test
 
+      # Установка конфигурации CPack для генерации pkg-пакета на macOS
+      - name: Configure CPack for macOS
+        run: |
+        echo 'set(CPACK_GENERATOR "productbuild")' >> CPackConfig.cmake 
+        echo 'set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${{ github.run_number }}-macOS")' >> CPackConfig.cmake
+
       # Сборка пакета
       - name: Package
         run: cmake --build . --target package
