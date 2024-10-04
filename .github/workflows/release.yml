@@ -48,13 +48,12 @@ jobs:
 
       # Создание релиза
       - name: Create Release
-        if: always()
         id: create_release_ubuntu
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "release-${{ github.run_number }}-${{ github.sha }}"
+           tag_name: "release-${{ github.run_number }}-$(date +'%S')"
           release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
@@ -108,13 +107,12 @@ jobs:
 
       # Создание релиза
       - name: Create Release
-        if: always()
         id: create_release_macos
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "release-${{ github.run_number }}-${{ github.sha }}"
+           tag_name: "release-${{ github.run_number }}-$(date +'%S')"
           release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
