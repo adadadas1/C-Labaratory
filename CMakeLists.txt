@@ -72,3 +72,19 @@ include(CPack)
 enable_testing()
 
 add_test(test_version test_version)
+
+include(CPack)
+
+if(APPLE)
+    set(CPACK_GENERATOR "productbuild")
+    set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${{ GITHUB_RUN_NUMBER }}-macOS")
+    set(CPACK_PRODUCTBUILD_IDENTITY "Developer ID Installer: Your Name (Your Team ID)")
+elseif(UNIX)
+    set(CPACK_GENERATOR "DEB")
+    set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${{ GITHUB_RUN_NUMBER }}-Linux")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your Name")
+endif()
+
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "${GITHUB_RUN_NUMBER}")
