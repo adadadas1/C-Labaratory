@@ -39,6 +39,13 @@ jobs:
       - name: Package
         run: cmake --build . --target package
 
+      - name: List Files
+        run: ls -alh .
+
+      # Найдем путь к сгенерированному пакету
+      - name: Find Generated Package
+        run: find . -name "*.deb" -or -name "*.pkg"
+
       # Создание релиза
       - name: Create Release
         id: create_release_ubuntu
@@ -90,6 +97,13 @@ jobs:
       # Сборка пакета
       - name: Package
         run: cmake --build . --target package
+
+      - name: List Files
+        run: ls -alh .
+
+      # Найдем путь к сгенерированному пакету
+      - name: Find Generated Package
+        run: find . -name "*.deb" -or -name "*.pkg"
 
       # Создание релиза
       - name: Create Release
