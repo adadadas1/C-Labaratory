@@ -9,7 +9,22 @@ on:
     branches:
       - '**'
 
-jobs:
+jobs:    
+  release:
+    runs-on: ubuntu-latest
+    outputs: 
+      upload_url: ${{ create_release.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: release-${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
   # Задача для сборки на Ubuntu
   build_ubuntu:
     runs-on: ubuntu-latest
@@ -115,20 +130,7 @@ jobs:
           asset_path: ./helloworld-0.0.${{ github.run_number }}-macOS.pkg
           asset_name: helloworld-0.0.${{ github.run_number }}-macOS.pkg
           asset_content_type: application/octet-stream
-          
-  release:
-    outputs: 
-      upload_url: ${{ create_release.upload_url }}
-    - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: release-${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          draft: false
-          prerelease: false
-      
+
     
+  
   
