@@ -4,10 +4,8 @@ name: 'C++ CI'
 on:
   push:
     branches:
-      - '**'
-  pull_request:
-    branches:
-      - '**'
+      - main
+      - feature/github_actions
 
 jobs:
   # Задача для сборки на Ubuntu
@@ -37,14 +35,7 @@ jobs:
 
       # Сборка пакета
       - name: Package
-        run: cmake --build . --target package
-
-      - name: List Files
-        run: ls -alh .
-
-      # Найдем путь к сгенерированному пакету
-      - name: Find Generated Package
-        run: find . -name "*.deb" -or -name "*.pkg"
+        run: cmake --build . --target package.
 
       # Создание релизa
       - name: Create Release
@@ -97,13 +88,6 @@ jobs:
       # Сборка пакета
       - name: Package
         run: cmake --build . --target package
-
-      - name: List Files
-        run: ls -alh .
-
-      # Найдем путь к сгенерированному пакету
-      - name: Find Generated Package
-        run: find . -name "*.deb" -or -name "*.pkg"
 
       # Создание релиза
       - name: Create Release
