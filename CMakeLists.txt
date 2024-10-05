@@ -59,7 +59,7 @@ install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
 
 # Настройка CPack в зависимости от операционной системы
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    set(CPACK_GENERATOR "deb")
+    set(CPACK_GENERATOR DEB)
     set(CPACK_PACKAGE_FILE_NAME "helloworld-0.0.${PATCH_VERSION}-Linux")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(CPACK_GENERATOR "productbuild")
