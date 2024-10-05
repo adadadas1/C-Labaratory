@@ -12,8 +12,7 @@ on:
 jobs:    
   release:
     runs-on: ubuntu-latest
-    outputs: 
-      upload_url: ${{ create_release.upload_url }}
+    
     steps:
       - name: Create Release
         id: create_release
@@ -25,6 +24,8 @@ jobs:
           release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
+    outputs: 
+      upload_url: ${{ create_release.upload_url }}
   # Задача для сборки на Ubuntu
   build_ubuntu:
     runs-on: ubuntu-latest
