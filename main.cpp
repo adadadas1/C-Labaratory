@@ -27,6 +27,29 @@ public:
         data = new int[capacity];
     }
 
+    // Перемещающий конструктор
+    PreallocatedContainer(PreallocatedContainer&& other) noexcept
+        : data(other.data), capacity(other.capacity), count(other.count) {
+        other.data = nullptr;
+        other.capacity = 0;
+        other.count = 0;
+    }
+
+    // Перемещающий оператор присваивания
+    PreallocatedContainer& operator=(PreallocatedContainer&& other) noexcept {
+        if (this != &other) {
+            delete[] data; // Освобождаем старые ресурсы
+            data = other.data;
+            capacity = other.capacity;
+            count = other.count;
+
+            other.data = nullptr;
+            other.capacity = 0;
+            other.count = 0;
+        }
+        return *this;
+    }
+
     ~PreallocatedContainer() {
         delete[] data;
     }
@@ -96,6 +119,24 @@ class DoublyLinkedList {
 
 public:
     DoublyLinkedList() : count(0) {}
+
+    // Перемещающий конструктор
+    DoublyLinkedList(DoublyLinkedList&& other) noexcept
+        : head(std::move(other.head)), tail(std::move(other.tail)), count(other.count) {
+        other.count = 0;
+    }
+
+    // Перемещающий оператор присваивания
+    DoublyLinkedList& operator=(DoublyLinkedList&& other) noexcept {
+        if (this != &other) {
+            head = std::move(other.head);
+            tail = std::move(other.tail);
+            count = other.count;
+
+            other.count = 0;
+        }
+        return *this;
+    }
 
     void push_back(int value) {
         auto newNode = std::make_shared<Node>(value);
@@ -187,6 +228,22 @@ class SinglyLinkedList {
 
 public:
     SinglyLinkedList() : count(0) {}
+
+    // Перемещающий конструктор
+    SinglyLinkedList(SinglyLinkedList&& other) noexcept
+        : head(std::move(other.head)), count(other.count) {
+        other.count = 0;
+    }
+
+    // Перемещающий оператор присваивания
+    SinglyLinkedList& operator=(SinglyLinkedList&& other) noexcept {
+        if (this != &other) {
+            head = std::move(other.head);
+            count = other.count;
+            other.count = 0;
+        }
+        return *this;
+    }
 
     void push_back(int value) {
         auto newNode = std::make_shared<Node>(value);
