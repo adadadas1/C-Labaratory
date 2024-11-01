@@ -81,8 +81,8 @@ public:
     }
 };
 
-// Контейнер спискового типа
-class ListContainer {
+// Двунаправленный список
+class DoublyLinkedList {
     struct Node {
         int value;
         std::shared_ptr<Node> next;
@@ -95,7 +95,7 @@ class ListContainer {
     size_t count;
 
 public:
-    ListContainer() : count(0) {}
+    DoublyLinkedList() : count(0) {}
 
     void push_back(int value) {
         auto newNode = std::make_shared<Node>(value);
@@ -110,6 +110,9 @@ public:
     }
 
     void insert(size_t index, int value) {
+        if (index > count) {
+            throw std::out_of_range("Индекс выходит за пределы списка.");
+        }
         auto newNode = std::make_shared<Node>(value);
         if (index == 0) {
             newNode->next = head;
@@ -121,33 +124,32 @@ public:
             for (size_t i = 0; i < index - 1 && current; ++i) {
                 current = current->next;
             }
-            if (current) {
-                newNode->next = current->next;
-                newNode->prev = current;
-                if (current->next) current->next->prev = newNode;
-                current->next = newNode;
-                if (!newNode->next) tail = newNode;
-            }
+            newNode->next = current->next;
+            newNode->prev = current;
+            if (current->next) current->next->prev = newNode;
+            current->next = newNode;
+            if (!newNode->next) tail = newNode;
         }
         ++count;
     }
 
     void erase(size_t index) {
-        if (index < count) {
-            auto current = head;
-            for (size_t i = 0; i < index && current; ++i) {
-                current = current->next;
-            }
-            if (current) {
-                auto prev = current->prev.lock();
-                auto next = current->next;
-                if (prev) prev->next = next;
-                if (next) next->prev = prev;
-                if (current == head) head = next;
-                if (current == tail) tail = prev;
-                --count;
-            }
+        if (index >= count) {
+            throw std::out_of_range("Индекс выходит за пределы списка.");
         }
+        auto current = head;
+        for (size_t i = 0; i < index; ++i) {
+            current = current->next;
+        }
+        auto prev = current->prev.lock();
+        auto next = current->next;
+
+        if (prev) prev->next = next;
+        if (next) next->prev = prev;
+        if (current == head) head = next;
+        if (current == tail) tail = prev;
+
+        --count;
     }
 
     size_t size() const {
@@ -172,7 +174,92 @@ public:
     }
 };
 
-// Демонстрация использования обоих контейнеров
+// Однонаправленный список
+class SinglyLinkedList {
+    struct Node {
+        int value;
+        std::shared_ptr<Node> next;
+        Node(int val) : value(val), next(nullptr) {}
+    };
+
+    std::shared_ptr<Node> head;
+    size_t count;
+
+public:
+    SinglyLinkedList() : count(0) {}
+
+    void push_back(int value) {
+        auto newNode = std::make_shared<Node>(value);
+        if (!head) {
+            head = newNode;
+        } else {
+            auto current = head;
+            while (current->next) {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+        ++count;
+    }
+
+    void insert(size_t index, int value) {
+        if (index > count) {
+            throw std::out_of_range("Индекс выходит за пределы списка.");
+        }
+        auto newNode = std::make_shared<Node>(value);
+        if (index == 0) {
+            newNode->next = head;
+            head = newNode;
+        } else {
+            auto current = head;
+            for (size_t i = 0; i < index - 1 && current; ++i) {
+                current = current->next;
+            }
+            newNode->next = current->next;
+            current->next = newNode;
+        }
+        ++count;
+    }
+
+    void erase(size_t index) {
+        if (index >= count) {
+            throw std::out_of_range("Индекс выходит за пределы списка.");
+        }
+        if (index == 0) {
+            head = head->next;
+        } else {
+            auto current = head;
+            for (size_t i = 0; i < index - 1; ++i) {
+                current = current->next;
+            }
+            current->next = current->next->next;
+        }
+        --count;
+    }
+
+    size_t size() const {
+        return count;
+    }
+
+    int operator[](size_t index) const {
+        auto current = head;
+        for (size_t i = 0; i < index && current; ++i) {
+            current = current->next;
+        }
+        return current ? current->value : -1;
+    }
+
+    void print() const {
+        auto current = head;
+        while (current) {
+            std::cout << current->value << " ";
+            current = current->next;
+        }
+        std::cout << std::endl;
+    }
+};
+
+// Демонстрация использования всех контейнеров
 int main() {
     // Последовательный контейнер
     PreallocatedContainer preallocatedContainer;
@@ -203,34 +290,63 @@ int main() {
     std::cout << "Последовательный контейнер после добавления в конец: ";
     preallocatedContainer.print();
 
-    // Списковый контейнер
-    ListContainer listContainer;
+    // Двунаправленный список
+    DoublyLinkedList doublyLinkedList;
 
     for (int i = 0; i < 10; ++i) {
-        listContainer.push_back(i);
+        doublyLinkedList.push_back(i);
     }
 
-    std::cout << "Списковый контейнер после добавления элементов: ";
-    listContainer.print();
-    std::cout << "Размер: " << listContainer.size() << std::endl;
+    std::cout << "Двунаправленный список после добавления элементов: ";
+    doublyLinkedList.print();
+    std::cout << "Размер: " << doublyLinkedList.size() << std::endl;
 
-    listContainer.erase(2);
-    listContainer.erase(3);
+    doublyLinkedList.erase(2);
+    doublyLinkedList.erase(3);
     
-    std::cout << "Списковый контейнер после удаления элементов: ";
-    listContainer.print();
+    std::cout << "Двунаправленный список после удаления элементов: ";
+    doublyLinkedList.print();
 
-    listContainer.insert(0, 10);
-    std::cout << "Списковый контейнер после вставки в начало: ";
-    listContainer.print();
+    doublyLinkedList.insert(0, 10);
+    std::cout << "Двунаправленный список после вставки в начало: ";
+    doublyLinkedList.print();
 
-    listContainer.insert(4, 20);
-    std::cout << "Списковый контейнер после вставки в середину: ";
-    listContainer.print();
+    doublyLinkedList.insert(4, 20);
+    std::cout << "Двунаправленный список после вставки в середину: ";
+    doublyLinkedList.print();
 
-    listContainer.push_back(30);
-    std::cout << "Списковый контейнер после добавления в конец: ";
-    listContainer.print();
+    doublyLinkedList.push_back(30);
+    std::cout << "Двунаправленный список после добавления в конец: ";
+    doublyLinkedList.print();
+
+    // Однонаправленный список
+    SinglyLinkedList singlyLinkedList;
+
+    for (int i = 0; i < 10; ++i) {
+        singlyLinkedList.push_back(i);
+    }
+
+    std::cout << "Однонаправленный список после добавления элементов: ";
+    singlyLinkedList.print();
+    std::cout << "Размер: " << singlyLinkedList.size() << std::endl;
+
+    singlyLinkedList.erase(2);
+    singlyLinkedList.erase(3);
+    
+    std::cout << "Однонаправленный список после удаления элементов: ";
+    singlyLinkedList.print();
+
+    singlyLinkedList.insert(0, 10);
+    std::cout << "Однонаправленный список после вставки в начало: ";
+    singlyLinkedList.print();
+
+    singlyLinkedList.insert(4, 20);
+    std::cout << "Однонаправленный список после вставки в середину: ";
+    singlyLinkedList.print();
+
+    singlyLinkedList.push_back(30);
+    std::cout << "Однонаправленный список после добавления в конец: ";
+    singlyLinkedList.print();
 
     return 0;
 }
