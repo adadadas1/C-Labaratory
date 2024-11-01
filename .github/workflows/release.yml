@@ -55,7 +55,7 @@ jobs:
 
       # Сборка пакета
       - name: Package
-        run: cmake --build . --target package.
+        run: cmake --build . --target package
 
       # Загрузка артефактов для Ubuntu
       - name: Upload Release Asset
